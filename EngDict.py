@@ -42,9 +42,7 @@ while status == 1:
         fname = 'OxfordDict.txt'
         fh = open(fname)
         for line in fh:
-            # print('working!!!')
             line_lower = line.lower().rstrip()
-            # 只跑一次是什么毛病？？？？
             if re.search(rexpression,line_lower):
                 count += 1
                 print(line_lower)
@@ -54,6 +52,7 @@ while status == 1:
             print(vocab_in, 'appears', count, 'times.')
         else:
             vocab[vocab_in] = vocab.get(vocab_in,0) + 1
+    #如果在vocab_list里怎么办？
 print(vocab)
 
 
