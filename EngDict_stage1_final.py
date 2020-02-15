@@ -15,7 +15,7 @@ def DictSearching(lineinput):
                    '-var\.','-pl\.','-adv\.']
     vocab_char = ['n.','v.','v.aux.','Abbr.','adj.','contr.',\
                'var.','pl.','adv.','-n.','-v.','-v.aux.','-Abbr.',\
-               '-adj.','-contr.', '-var.','-pl.','-adv.'] 
+               '-adj.','-contr.', '-var.','-pl.','-adv.']
     char_property = {}
 #    retrn_value = {}
     rexpression1 = str()
@@ -23,8 +23,8 @@ def DictSearching(lineinput):
     for char in vocab_char1:
         rexpression1 += char + '\s|'        # regex with no '-'
     for char in vocab_char2:
-        rexpression2 += char + '\s|'        # regex with '-'    
-        
+        rexpression2 += char + '\s|'        # regex with '-'
+
     seg_split3 = []
     seg_split4 = []
     final_output = []
@@ -40,8 +40,8 @@ def DictSearching(lineinput):
                 if char in word:
                     char_property[wordsplit.index(word)] = char
     if re.search(rexpression2[0:len(rexpression2)-1],lineinput):
-        print(re.findall(rexpression2[0:len(rexpression2)-1],lineinput))
-        seg_split1 = re.split(rexpression2[0:len(rexpression2)-1],lineinput)  # seg after first split   
+        # print(re.findall(rexpression2[0:len(rexpression2)-1],lineinput))
+        seg_split1 = re.split(rexpression2[0:len(rexpression2)-1],lineinput)  # seg after first split
     else:
         seg_split1 = re.split(rexpression1[0:len(rexpression1)-1],lineinput)
     """sort the char_property to rearange the given word's features, such as
@@ -53,25 +53,25 @@ def DictSearching(lineinput):
 
     for e in seg_split1:
         seg_split3.append(re.sub('\(.*\)\s1','TAPoint',e))
-    
+
     for e in seg_split3:
         seg_split4.append(re.sub('\.\s[0-9]+','.\nTAPoint',e))
-        
+
     for e in seg_split4:
         if e[0] is '1':
             seg_split4[seg_split4.index(e)] = 'TAPoint' + e[1:len(e)]
-    
+
     for e in seg_split4:
         replace_count = it.count(1)
         final_output.append(re.sub('TAPoint',lambda x: '{}.'.format(next(replace_count)),e))
-        
+
     current_index = 1
     for e in char_property_sorted:
         final_output.insert(current_index,char_property[e])
-        current_index += 2  
+        current_index += 2
     if len(related_vocab) > 1:
         final_output.append(related_vocab[1])
-    for e in final_output:   
+    for e in final_output:
         if final_output.index(e) is 0:
             if len(e.split()) is 1:
                 print('----------------------English Dict by Guanyun Liu------------------------')
@@ -85,7 +85,7 @@ def DictSearching(lineinput):
         else:
             print('**********************************************')
             print(e)
-        
+
     return
 
 
@@ -131,10 +131,12 @@ if os.path.isfile('Vocab_list.xlsx') is True:
                      cell_value_meaning3]
 # vocab_old is a dictionary contained previously exist words. {'word':[出现的次数，所在行数]...}
 
-        
-# main procedure: if status is 1, keep running. if status is 0, stop dictionary function and go the export the spreadsheet stage      
+
+# main procedure: if status is 1, keep running. if status is 0, stop dictionary function and go the export the spreadsheet stage
+# vocab_in = input('Please Enter a Word: ')
 while status == 1:
     check = 0                   # check is a variable used to check whether a input is in the Oxford dictionary.
+    check2 = 0
     '''if the input is in the Oxford dictionary, check is 1, if it is not in the dictionary, check is 0'''
     line_phrase = []            # record all lines with phrases
     vocab_meaning_sub = []      # a sub dict under the vocab_meaning, it records all meanings for words appeared more than one times like still1 still2...
@@ -150,7 +152,7 @@ while status == 1:
         rexpression = '^' + vocab_in + '1|^' \
                         + vocab_in + '2|^'   \
                         + vocab_in + '3|^'   \
-                        + vocab_in + '4'   
+                        + vocab_in + '4'
         fname = 'OxfordDict.txt'
         fh = open(fname, encoding='utf8')       # for Windows, you may need open(fname, encoding = 'utf8')
         # looping the OxfordDict.txt file to find the user input.
@@ -162,8 +164,9 @@ while status == 1:
                 count += 1                      #record the number of words, such as are1, are2 (in this case, count = 2)
                 vocab_multi[count] = re.search(rexpression,line_lower).group()
                 DictSearching(line)
-                vocab_meaning_sub.append(final_output)  
+                vocab_meaning_sub.append(final_output)
                 check = 1
+                check2 = 1
             # if the given input has phrases, such as still life, then this line will be stored in line_phrase list.
             elif re.search('^' + vocab_in + '\s\w+',line_lower):
                 line_phrase.append(line)
@@ -174,7 +177,7 @@ while status == 1:
                 DictSearching(line)
                 vocab_meaning_sub.append(final_output)
                 check = 1
-            # this if statement has to be writen at here since it can differentiate still n. and still life                 
+            # this if statement has to be writen at here since it can differentiate still n. and still life
             elif re.search('^' + vocab_in + '\s',line_lower):
                 vocab[vocab_in] = vocab.get(vocab_in,0) + 1
                 DictSearching(line)
@@ -190,24 +193,27 @@ while status == 1:
             else:
                 print('There are', len(line_phrase), 'phrases founded!\n')
                 user_input = input('Do you want to display them (y/n)? ')
-            
+
             if user_input is 'y':
                 for element in line_phrase:
                     DictSearching(element)
         if check is 0:
             print('ERROR: Word Not Found!\nPlease Enter a Valid Word!')
-                    
+        if check2 is 1:
+            vocab[vocab_in] = vocab[vocab_in] - 1
+
         vocab_meaning[vocab_in] = vocab_meaning_sub
+    # vocab_in = input('Please Enter a Word: ')
+    # os.system('clear')
+
 #        if count > 1:
 ##            vocab[vocab_in] = vocab.get(vocab_in,0) + 1
 #            print('Multiple vocab found!')
 #            print(vocab_in, 'appears', count, 'times.')
-print('vocab is\n',vocab)
 
 for key, val in list(vocab.items()):
     vocab_sort.append((val, key))
 vocab_sort.sort(reverse=True)
-print('vocab_sort is\n',vocab_sort)
 
 wb = Workbook()
 wbws1 = wb.active
@@ -220,8 +226,6 @@ _ = wbws1.cell(column = 1, row = 1, value = 'Search Frequency')
 _ = wbws1.cell(column = 2, row = 1, value = 'Vocab')
 
 for lis in vocab_sort:
-    wbws1output = ''
-    wbws1output_final = ''
     col_count = 3
     if lis[1] in vocab_old:
         _ = wbws1.cell(column = 2, row = row_count, value = lis[1])
@@ -234,6 +238,8 @@ for lis in vocab_sort:
         _ = wbws1.cell(column = 2, row = row_count, value = lis[1])
         _ = wbws1.cell(column = 1, row = row_count, value = lis[0])
         for element in vocab_meaning[lis[1]]:
+            wbws1output = ''
+            wbws1output_final = ''
             if len(element) > 1:
                 for item in element:
                     wbws1output = wbws1output + item + '\n'
@@ -244,7 +250,7 @@ for lis in vocab_sort:
             col_count += 1
     row_count += 1
 
-    
+
 wb.save('Vocab_list.xlsx')
-fh.close()
+
 wb.close()
